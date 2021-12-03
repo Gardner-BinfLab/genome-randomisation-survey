@@ -9,7 +9,7 @@ K01059.1  tRNA.1 Saccharomyces cerevisiae (baker's yeast) tRNA-Ala
 BK006945.2:455933..457732 rRNA.2 Saccharomyces cerevisiae S288C 18S ribosomal RNA
 AM039756.1 Protostrongylus rufescens 28S rRNA gene
 J01415.2 Homo sapiens mitochondrion, complete genome.
-CM000663.2 Homo sapiens chromosome 1, GRCh38 reference primary assembly.
+#CM000663.2 Homo sapiens chromosome 1, GRCh38 reference primary assembly.  --- too long, kills too many methods... 
 ABG48500.1 Danio rerio (zebrafish) titin a
 BK006949.2 TPA: Saccharomyces cerevisiae S288C chromosome XVI, complete sequence.
 BK006935.2 TPA: Saccharomyces cerevisiae S288C chromosome I, complete sequence.

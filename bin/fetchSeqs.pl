@@ -73,7 +73,7 @@ sub fetchSeqs {
 	
 	    #https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/searching-and-visualising-data-ena/
 	    #curl -X GET "https://www.ebi.ac.uk/ena/browser/api/fasta/BK006945.2?download=true&lineLimit=0&expanded=false&gzip=false&range=455933..457732" -H "accept: text/plain"
-	if (not -e $outFileFasta){
+	if (not -s $outFileFasta){
 	    my $cmd = "curl -o $outFileFasta -X GET \42https://www.ebi.ac.uk/ena/browser/api/fasta/$id?download=true&lineLimit=0&expanded=true&gzip=false\42 -H \42accept: text/plain\42";
 	    $cmd . "&range=" . $range if (defined($cmd) && defined($range));
 	    print "Running [$cmd].\n" if (defined($verbose));	    
