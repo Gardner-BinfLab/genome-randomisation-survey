@@ -70,7 +70,10 @@ foreach my $seqFile (@seqFiles){
 #    runUshuffle($seq, $num, $outFile, "-k 2", $timeOut);
 #    $outFile = $outDir . "/" . $fileRoot . ".ushuffle-k6.fasta" ;
 #    runUshuffle($seq, $num, $outFile, "-k 6", $timeOut);
-
+#ALSO: ######################################################################
+    #https://meme-suite.org/meme/doc/fasta-shuffle-letters.html
+    #"The underlying implementation uses uShuffle."
+    
     ######################################################################
     #SHUFFLER
     #3 main modes: 1. Eulerian (DEFAULT preserve k-mer counts with a random Eulerian walk through k-mer graph),
@@ -210,7 +213,7 @@ sub runEslShuffle {
 #  -shuffle            integer    [1] Number of shuffles (Any integer value)
 sub runShuffleSeq {
     my ($seqfile, $n, $outfile, $timeOut) = @_;    
-    my $exe = "shuffleseq  -shuffle $n -sequence $seqfile -outseq $outfile ";
+    my $exe = "shuffleseq  -shuffle $n -sequence $seqfile -outseq $outfile.temp ";
     print "Running: [$exe]\n" if defined($verbose);
     system("echo $outfile >> $timeOut");
     my $start = [ gettimeofday() ];
@@ -220,7 +223,25 @@ sub runShuffleSeq {
     open(TO, ">> $timeOut") or die("FATAL: failed to open [$timeOut]\n[$!]\n");
     print TO "Perl time: [$total_secs] (secs)\n\n";
     close(TO);
-
+    
+    #convert shuffleseq output format to uniquely named fasta sequences!!!
+    open( SHQ,"< $outfile\.temp") or die("FATAL: failed to open [$outfile\.temp]\n[$!]\n");
+    open(FSHQ,"> $outfile")       or die("FATAL: failed to open [$outfile]\n[$!]\n");
+    my $cnt=0;
+    while(my $in = <SHQ>){
+	if($in =~ /^>\s*(\S+)$/){
+	    $cnt++;
+	    print FSHQ ">shuffleseq.$cnt $1\n";	    
+	}
+	else{
+	    print FSHQ "$in";	    
+	}
+    }
+    close( SHQ);
+    close(FSHQ);
+    unlink("$outfile\.temp");
+    print "WARNING: sequence-count[$cnt] not equal to expectation [$n] for shuffleseq [$outfile]\n" if ($cnt != $n);
+    
     return 0;
 }
 
@@ -230,7 +251,7 @@ sub runShuffleSeq {
 #Usage: python randomseq.py FLS --length=100 --n=10 --allow_start=False --allow_stop=False --start_codons="TTG,CTG,ATG" --stop_codons="TAA,TAG,TGA" --cap_start=True --cap_stop=True --selection="A,250;T,250;G,250;C,250" --fasta=True --prefix="Test"
 sub runRandomSeq {
     my ($outfile, $options, $timeOut)=@_;
-    my $exe = "randomseq.py FLS --fasta=True $options > $outfile ";
+    my $exe = "randomseq.py FLS --fasta=True $options > $outfile\.temp ";
     
     print "Running: [$exe]\n" if defined($verbose);
     system("echo $outfile >> $timeOut");
@@ -242,6 +263,24 @@ sub runRandomSeq {
     open(TO, ">> $timeOut") or die("FATAL: failed to open [$timeOut]\n[$!]\n");
     print TO "Perl time: [$total_secs] (secs)\n\n";
     close(TO);
+    
+    #convert randomseq output format to uniquely named fasta sequences!!!
+    open( RAS,"< $outfile\.temp") or die("FATAL: failed to open [$outfile\.temp]\n[$!]\n");
+    open(FRAS,"> $outfile")       or die("FATAL: failed to open [$outfile]\n[$!]\n");
+    my $cnt=0;
+    while(my $in = <RAS>){
+	if($in =~ /^>\s*(\S+)$/){
+	    $cnt++;
+	    print FRAS ">randomseq.$cnt $1\n";	    
+	}
+	else{
+	    print FRAS "$in";	    
+	}
+    }
+    close( RAS);
+    close(FRAS);
+    unlink("$outfile\.temp");
+    print "WARNING: sequence-count[$cnt] not equal to expectation [$n] for randomseq [$outfile]\n" if ($cnt != $n);
     
     return 0;    
 }
@@ -258,7 +297,7 @@ sub runRandomSeq {
 sub runUshuffle {
     my ($seq, $n, $outfile, $options, $timeOut) = @_;
     my $exe = "ushuffle -n $n $options -s $seq > $outfile\.temp ";
-    print "Running: [ushuffle -n $n $options -s <seq> > $outfile\.temp]\n" if defined($verbose);
+    print "Running: [$exe]\n" if defined($verbose);
     system("echo $outfile >> $timeOut");
     my $start = [ gettimeofday() ];
     system("/usr/bin/time -f \42real \%e\\nuser \%U\\nsys \%S\\ncpu \%P\\n\42 $exe 2>> $timeOut") and die "FATAL: [/usr/bin/time -f \42real \%e\\nuser \%U\\nsys \%S\\ncpu \%P\\n\42 $exe 2>> $timeOut] failed!\n[$!]\n";

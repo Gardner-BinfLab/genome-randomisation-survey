@@ -1,0 +1,9 @@
+
+Programmatic fetching of sequences from the ENA database:
+
+Described here:
+https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/searching-and-visualising-data-ena/
+
+Example: 
+curl -X GET "https://www.ebi.ac.uk/ena/browser/api/fasta/U00096.3?download=true&lineLimit=0&expanded=true&gzip=false" -H "accept: text/plain"
+
